@@ -10,5 +10,4 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 	
 	public Board findByBoardCode(long boardCode);
 	
-	
 }

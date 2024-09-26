@@ -40,7 +40,6 @@ public class Board {
 	@JsonManagedReference(value = "board-reply")
 	private List<Reply> reply;
 	
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long boardCode;

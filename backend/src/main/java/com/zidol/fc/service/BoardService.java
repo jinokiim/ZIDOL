@@ -1,14 +1,16 @@
 package com.zidol.fc.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.zidol.fc.domain.Board;
 import com.zidol.fc.domain.Reply;
+import com.zidol.fc.domain.User;
 import com.zidol.fc.repository.BoardRepository;
 import com.zidol.fc.repository.ReplyRepository;
 
@@ -21,12 +23,39 @@ public class BoardService {
 	@Autowired
 	ReplyRepository replyRepository;
 	
-	public Page<Board> findAllBoard(Pageable pageable) {
-		return boardRepository.findAll(pageable);
+	public List<Map<String, Object>> findAllBoard() {
+		List<Map<String, Object>> results = new ArrayList<>();
+		List<Board> boards = boardRepository.findAll();
+		
+		for(Board board : boards) {
+			Map<String, Object> result = new HashMap<>();
+			result.put("user", board.getUser());
+			result.put("board", board);
+			results.add(result);
+		}
+		
+		return results;
 	}
 	
-	public Board findByBoardCode(long boardCode) {
-		return boardRepository.findByBoardCode(boardCode);
+	public Map<String, Object> findByBoardCode(long boardCode) {
+		Map<String, Object> result = new HashMap<>();
+		List<Map<String, Object>> replys = new ArrayList<>();
+		Board board = boardRepository.findByBoardCode(boardCode);
+		User user = board.getUser();
+		List<Reply> tempReplys = board.getReply();
+		
+		for(Reply reply : tempReplys) {
+			Map<String, Object> temp = new HashMap<>();
+			temp.put("user", reply.getUser());
+			temp.put("reply", reply);
+			replys.add(temp);
+		}
+		
+		result.put("user", user);
+		result.put("board", board);
+		result.put("replys", replys);
+		
+		return result;
 	}
 	
 	public Board insertBoard(Board board) {

@@ -4,8 +4,6 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,14 +36,14 @@ public class BoardController {
 
 	// 게시글 전체 리스트업
 	@GetMapping("/find-all-board.act")
-	public ResponseEntity<DataResponse> findAllBoard(@PageableDefault(page = 0, size = 10) Pageable pageable) {
+	public ResponseEntity<DataResponse> findAllBoard() {
 		DataResponse dataResponse = new DataResponse();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
 
 		dataResponse.setStatus(StatusCode.OK.getStatus());
 		dataResponse.setCode(StatusCode.OK.getCode());
-		dataResponse.setData(boardService.findAllBoard(pageable));
+		dataResponse.setData(boardService.findAllBoard());
 
 		return new ResponseEntity<DataResponse>(dataResponse, headers, HttpStatus.OK);
 	}
@@ -57,12 +55,12 @@ public class BoardController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
 
-		Board board = boardService.findByBoardCode(boardCode);
+		Map<String, Object> result = boardService.findByBoardCode(boardCode);
 
-		if (board != null) {
+		if (result != null) {
 			dataResponse.setStatus(StatusCode.OK.getStatus());
 			dataResponse.setCode(StatusCode.OK.getCode());
-			dataResponse.setData(board);
+			dataResponse.setData(result);
 
 			return new ResponseEntity<DataResponse>(dataResponse, headers, HttpStatus.OK);
 		} else {
@@ -106,7 +104,8 @@ public class BoardController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
 
-		Board board = boardService.findByBoardCode(Long.parseLong(params.get("boardCode")));
+		Map<String, Object> result = boardService.findByBoardCode(Long.parseLong(params.get("boardCode")));
+		Board board = (Board) result.get("board");
 		User user = board.getUser();
 
 		board.setBoardTitle(params.get("boardTitle"));
@@ -132,7 +131,8 @@ public class BoardController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
 
-		Board board = boardService.findByBoardCode(params.get("boardCode"));
+		Map<String, Object> result = boardService.findByBoardCode(params.get("boardCode"));
+		Board board = (Board) result.get("board");
 		User user = board.getUser();
 
 		if (params.get("userCode") == user.getUserCode()) {
@@ -158,7 +158,8 @@ public class BoardController {
 		headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
 
 		User user = userService.findByUserCode(Long.parseLong(params.get("userCode")));
-		Board board = boardService.findByBoardCode(Long.parseLong(params.get("boardCode")));
+		Map<String, Object> result = boardService.findByBoardCode(Long.parseLong(params.get("boardCode")));
+		Board board = (Board) result.get("board");
 		Reply reply = Reply.builder().user(user).board(board).replyContent(params.get("replyContent")).build();
 
 		if (boardService.insertReply(reply) != null) {
